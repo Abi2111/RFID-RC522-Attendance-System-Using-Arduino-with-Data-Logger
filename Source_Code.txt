@@ -1,0 +1,69 @@
+#include<SPI.h>
+#include<RFID.h>
+#include<LiquidCrystal.h>
+#include<DS3231.h>
+DS3231 rtc(SDA,SCL);
+LiquidCrystal lcd(1,2,4,5,6,7);
+RFID rfid(10,9);
+int a=0;
+String rfidread;
+void setup(){ 
+  SPI.begin();
+  rfid.init();
+  lcd.clear();
+  lcd.begin(16,2);
+  rtc.begin();
+  rtc.setDOW(FRIDAY);
+  rtc.setTime(14,28,10); 
+  pinMode(8,OUTPUT);
+  lcd.setCursor(0,0);
+  lcd.print("Place your id");
+}
+void loop(){ 
+if(rfid.isCard()){
+  if(rfid.readCardSerial()){
+    rfidread=String(rfid.serNum[0])+" "+String(rfid.serNum[1])+" "+String(rfid.serNum[2])+" "+String(rfid.serNum[3]);
+    if(rfidread=="106 31 153 19"){
+      a=1;
+    }
+    else{
+      a=0;
+    }
+  }
+  switch (a){
+    case 0:
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Access Denied");
+    lcd.setCursor(0,1);
+    lcd.print(rtc.getTimeStr());
+    digitalWrite(8,HIGH);
+    delay(100);
+    digitalWrite(8,LOW);
+    delay(100);
+    digitalWrite(8,HIGH);
+    delay(100);
+    digitalWrite(8,LOW);
+    delay(100);
+    digitalWrite(8,HIGH);
+    delay(100);
+    digitalWrite(8,LOW);
+    delay(1000);
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Place your id ");
+    break;
+    
+    case 1 ... 10:
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("49032 PRESENT");
+    lcd.setCursor(0,1);
+    lcd.print(rtc.getTimeStr());
+    delay(1000);
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Place your id ");
+  }
+ }
+}
